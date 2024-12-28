@@ -143,3 +143,33 @@ function drawTriangle(e) {
   ctx.closePath();
   fillColor.checked ? ctx.fill() : ctx.stroke();
 }
+let undoStack = [];
+let redoStack = [];
+
+function saveState() {
+  undoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+}
+
+function undo() {
+  if (undoStack.length > 0) {
+    redoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+    let prevState = undoStack.pop();
+    ctx.putImageData(prevState, 0, 0);
+  }
+}
+
+function redo() {
+  if (redoStack.length > 0) {
+    saveState(); // Save the current state before redoing
+    let nextState = redoStack.pop();
+    ctx.putImageData(nextState, 0, 0);
+  }
+}
+
+// Bind undo/redo to buttons or keyboard shortcuts
+document.querySelector("#undo").addEventListener("click", undo);
+document.querySelector("#redo").addEventListener("click", redo);
+
+// Save state before every drawing action
+canvas.addEventListener("mousedown", saveState);
+
